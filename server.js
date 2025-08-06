@@ -17,17 +17,35 @@ const server = fastify()
 // const database = new DatabaseMemory
 const database = new DatabasePostgres
 
+// server.post('/videos', async (req, res) => {
+//     const { title, description, duration } = req.body
+//     await database.create({
+//         title: title,
+//         description: description,
+//         duration: duration
+//     })
+
+//     console.log(database.list())
+//     return res.status(201).send('')
+// })
+
 server.post('/videos', async (req, res) => {
-    const { title, description, duration } = req.body
+    const { title, description, duration, secret } = req.body
+
+    if (secret !== process.env.SECRET_TOKEN) {
+        return res.status(403).send('Forbidden: Invalid secret token.')
+    }
+
     await database.create({
-        title: title,
-        description: description,
-        duration: duration
+        title,
+        description,
+        duration
     })
 
     console.log(database.list())
-    return res.status(201).send('')
+    return res.status(201).send('Video created successfully.')
 })
+
 
 server.get('/videos', async (req, res) => {
     const search = req.query.search
